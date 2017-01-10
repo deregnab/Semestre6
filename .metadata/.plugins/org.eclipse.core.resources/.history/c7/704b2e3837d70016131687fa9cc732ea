@@ -1,0 +1,42 @@
+package exercice3;
+
+public class Tchat{
+
+	public static void main(String args[]) {
+		Thread t_receive = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				UDPServerThread r_udp = new UDPServerThread();
+				try {
+					r_udp.receive(args[0], Integer.parseInt(args[1]));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		Thread t_send = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				SendUDPThread s_udp = new SendUDPThread();
+				System.out.print("Entrez votre pseudo : ");
+				Scanner in = new Scanner(System.in);
+				s_udp.setUser(in.nextLine());
+
+				try {
+					s_udp.send(args[0], Integer.parseInt(args[1]));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+
+		t_receive.start();
+		t_send.start();
+	}
+}
+
+}
