@@ -1,0 +1,5 @@
+let definition de variable
+
+compilation :l fichier.hs
+
+x = (!!) l   x prend un int est renvoie l'element a la ieme position de l
