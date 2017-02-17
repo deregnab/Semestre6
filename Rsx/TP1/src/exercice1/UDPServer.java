@@ -9,10 +9,20 @@ public class UDPServer {
 
 	public static void main(String[] args) throws Exception {
 		
-		//int host = 8080;
+		/*
+		 * Numero du port saisi dans les parametres
+		 */
 		int host = Integer.parseInt(args[0]);
+		
+		/*
+		 *Création de la socket 
+		 */
 		DatagramSocket socket = new DatagramSocket(host);
 		byte[] receiveData, sendData;
+		
+		/*
+		 * boucle infinie qui gère la reception des paquets
+		 */
 		while(true){
 			receiveData = new byte[1024];
 			sendData = new byte[1024];

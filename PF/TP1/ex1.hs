@@ -1,3 +1,4 @@
+--Benjamin Deregnaucourt  Samuel Moulard
 --Q3
 sommeDeXaY :: Int -> (Int -> Int)
 sommeDeXaY x y = if x>y then 0 else sommeDeXaY (x+1) y + x
@@ -53,4 +54,21 @@ mTM :: (a -> a) -> a -> Int ->[a]
 mTM f x 0 = [x]
 mTM f x n = take (n+1) (iterate f x)
 
+
+
+mTM2 :: (a -> a) -> a -> Int -> [a]
+mTM2 f x 0 = [x]
+mTM2 f x n = x : mTM2 f (f x) (n - 1)
+
+count :: (a -> a) -> a -> Int ->[a]
+count x = mTM2 (\y -> y+1) x 0
+
+--Q10
+
+list :: Int -> [Int]
+list 0 = []
+list n = construct plusUn 0 n
+
+plusUn :: Int -> Int
+plusUn x = x + 1
 

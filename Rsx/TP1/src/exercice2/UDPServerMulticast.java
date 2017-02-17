@@ -8,11 +8,25 @@ public class UDPServerMulticast {
 
 	public static void main(String[] args) throws Exception {
 
-		// int host = 8080;
+		/*
+		 * initialisation au port 7654 (consigne)
+		 */
 		int host = 7654;
+		
+		/*
+		 * Création de la socket multicast
+		 */
 		MulticastSocket socket = new MulticastSocket(host);
+		
+		/*
+		 * Initialisation de l'adresse IP à 224.0.0.1 (consigne)
+		 */
 		socket.joinGroup(InetAddress.getByName("224.0.0.1"));
 		byte[] receiveData, sendData;
+		
+		/*
+		 * boucle gérant la reception de message
+		 */
 		while (true) {
 			receiveData = new byte[1024];
 			sendData = new byte[1024];
@@ -21,14 +35,7 @@ public class UDPServerMulticast {
 			socket.receive(receivePacket);
 			String sentence = new String(receivePacket.getData());
 			System.out.println("["+receivePacket.getAddress()+"] :" + sentence);
-			//InetAddress IPAddress = receivePacket.getAddress();
-			//int port = receivePacket.getPort();
-			//String upperSentence = sentence.toUpperCase();
-			//sendData = upperSentence.getBytes();
-			//DatagramPacket sendPacket = new DatagramPacket(sendData,sendData.length, IPAddress, port);
-			//socket.send(sendPacket);
-			//System.out.println("Response : " + upperSentence);
-
+			
 		}
 
 	}

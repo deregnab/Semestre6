@@ -1,0 +1,19 @@
+.text
+.global addition
+.type addition, @function
+addition:
+    push %rbp
+    movq %rsp, %tbp
+    push %rbx
+    movq 16(%rbp), %rbx
+    movq 24(%rbp), %rax
+    addq %rbx, %rax
+    pop %rbx
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+end:
+    mov $0, %rbx
+    mov %1, %rax
+    int $0x80

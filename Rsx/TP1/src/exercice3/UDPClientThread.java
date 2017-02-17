@@ -8,19 +8,46 @@ import java.util.Scanner;
 
 public class UDPClientThread {
 	
+	/*
+	 * Pseudo de l'utilisateur
+	 */
 	private String utilisateur;
 
+	
+	/*
+	 * cette methode gère l'envoi de paquets au sein d'un thread
+	 */
 	public void send(String adresse,int numeroPort) throws Exception{
+		
 		
 		int port = numeroPort;
 		//BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		
+		/*
+		 * Création de la socket Multicast sur le numero de port
+		 */
 		MulticastSocket socket = new MulticastSocket(port);
+		
+		/*
+		 * Initialisation de l'adresse IP sur l'adresse passée en paramètre
+		 */
 		InetAddress IPAddress = InetAddress.getByName(adresse);
+		
+		/*
+		 * La socket rejoint le groupe de l'adresse IP
+		 */
 		socket.joinGroup(IPAddress);
 		byte[] sendData = new byte[1024];
 		byte[] receiveData = new byte[1024];
 		while (true) {
+			/*
+			 * Utilisation du scanner pour recuperer les messages de l'utilisateur
+			 */
 			Scanner in = new Scanner(System.in);
+			
+			/*
+			 * Message qui va etre envoyer dans le chat
+			 */
 			String sentence = "[" + this.utilisateur +"] :"+ in.nextLine();
 			
 			if (sentence.equals("/exit"))

@@ -5,6 +5,9 @@ import java.util.Scanner;
 public class Tchat{
 
 	public static void main(String args[]) {
+		/*
+		 * Creation du thread de reception
+		 */
 		Thread t_receive = new Thread(new Runnable() {
 
 			@Override
@@ -18,6 +21,9 @@ public class Tchat{
 			}
 		});
 
+		/*
+		 * Création du thread d'envoi de données
+		 */
 		Thread t_send = new Thread(new Runnable() {
 
 			@Override

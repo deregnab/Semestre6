@@ -1,0 +1,57 @@
+package exercice3;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.util.Scanner;
+
+
+public class UDPClientThread {
+	
+	private String utilisateur;
+
+	public void send(String adresse,int numeroPort) throws Exception{
+		
+		int port = numeroPort;
+		//BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		MulticastSocket socket = new MulticastSocket(port);
+		InetAddress IPAddress = InetAddress.getByName(adresse);
+		socket.joinGroup(IPAddress);
+		byte[] sendData = new byte[1024];
+		byte[] receiveData = new byte[1024];
+		while (true) {
+			Scanner in = new Scanner(System.in);
+			String sentence = "[" + this.utilisateur +"] :"+ in.nextLine();
+			
+			if (sentence.equals("/exit"))
+				break;
+			
+			sendData = sentence.getBytes();
+
+			/* Envoi */
+
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+			socket.send(sendPacket);
+
+			/*
+			 * Le client attend maintenant une réponse du serveur, qui lui
+			 * permettra de savoir si le message a bien été transmis ou s'il y a
+			 * eu une potentielle erreur.
+			 */
+
+			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+			socket.receive(receivePacket);
+			String modifiedSentence = new String(receivePacket.getData());
+		}
+
+		/* Pour finir, on ferme TOUJOURS la connexion établi avec le socket. */
+
+		socket.leaveGroup(IPAddress);
+		socket.close();
+
+	}
+	
+	public void setUser(String utilisateur) {
+		this.utilisateur = utilisateur;
+	}
+}
