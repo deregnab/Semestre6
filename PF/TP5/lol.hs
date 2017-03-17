@@ -1,3 +1,4 @@
+import Parser
 type Nom = String
 
 data Expression = Lam Nom Expression
@@ -9,3 +10,11 @@ data Expression = Lam Nom Expression
 data Litteral = Entier Integer
               | Bool   Bool
               deriving (Show,Eq)
+
+espacesP :: Parser ()
+espacesP = (chaine " ">>= \_ -> espacesP) <|>pure()
+
+
+nomP :: Parser Nom
+nomP = (chaine " " >>= empty ) <|> chaine
+

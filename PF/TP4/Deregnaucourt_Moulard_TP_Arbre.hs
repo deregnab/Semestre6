@@ -1,5 +1,6 @@
 import Test.QuickCheck
-
+--Deregnaucourt Benjamin
+--Moulard Samuel
 --Q1
 data Arbre coul val = Feuille | Noeud coul val (Arbre coul val) (Arbre coul val)
                      deriving (Show)
@@ -118,4 +119,30 @@ dotise t fc fv arb@(Noeud c a fg fd)=
     )
 
 --Q20
+elementR :: (Eq a, Ord a) => a -> Arbre c a -> Bool -- reprends la signature de la question 13
+elementR v Feuille = False
+elementR a (Noeud _ v g d)  | a == v = True
+                            | a < v  = elementR a g
+                            | a > v  = elementR a d
+
+
+--Q21
+data Couleur = R | N
+                deriving (Show, Eq)
+data ArbreRN Char = Arbre Couleur Char
+
+--Q22
+
+equilibre:: ArbreRN a -> ArbreRN a
+equilibre Noeud(_ z Noeud(R y Noeud(R x a b) c) d) = Noeud(R y Noeud(N x a b) Noeud(N y c d))
+equilibre Noeud(_ z Noeud(R x a Noeud(R y  b c) ) d) = Noeud(R y Noeud(N x a b) Noeud(N y c d))
+equilibre Noeud(_ x a Noeud(R z Noeud(R y  b c) d)a) = Noeud(R y Noeud(N x a b) Noeud(N y c d))
+equilibre Noeud(_ x a Noeud(R y b Noeud(R z c d) b) a) = Noeud(R y Noeud(N x a b) Noeud(N y c d))
+
+
+--Q23
+
+insertion ArbreRN a -> Val -> ArbreRN a
+insertion f a = Noeud(N a _ _)
+insertion 
 
