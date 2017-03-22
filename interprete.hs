@@ -1,7 +1,8 @@
 --Auteurs : Thomas Houset | Yann Garbé
 
-import Parser
+import ./PF/TP5/Parser
 import Data.Maybe
+import Data.Either
 type Nom = String
 
 data Expression = Lam Nom Expression
@@ -137,17 +138,14 @@ negA' (VLitteralA (Entier i)) = VLitteralA (Entier (-1*i))
 --Question 17
 addA :: ValeurA
 addA = VFonctionA addA'
-	where addA' (VLitteralA (Entier i)) = VFonctionA (addA'' i)
-						where addA'' a (VLitteralA (Entier j)) = VLitteralA(Entier (a+j))
 
---Ou
---addA':: ValeurA -> ValeurA
---addA' (VLitteralA (Entier i)) = VFonctionA (addA'' i)
+addA':: ValeurA -> ValeurA
+addA' (VLitteralA (Entier i)) = VFonctionA (addA'' i)
 
---addA'' :: Integer -> ValeurA -> ValeurA
---addA'' a (VLitteralA (Entier j)) = VLitteralA(Entier (a+j))
+addA'' :: Integer -> ValeurA -> ValeurA
+addA'' a (VLitteralA (Entier j)) = VLitteralA(Entier (a+j))
 
---Ou
+
 
 
 --Question 18
@@ -172,7 +170,86 @@ envA = [ ("neg",   negA)
 ifthenelseA :: ValeurA
 ifthenelseA = VFonctionA (inthenelseA' b i)
 
-inthenelseA' :: Bool -> ValeurA -> ValeurA -> ValeurA
-inthenelseA' True (VLitteralA (Entier i)) (VLitteralA (Entier j)) = VFonctionA (inthenelseA'' b 
+ifthenelseA :: ValeurA
+ifthenelseA = VFonctionA f
+            where f (VLitteralA (Bool x)) = VFonctionA g
+                    where g (VLitteralA y) = VFonctionA h
+                            where h (VLitteralA z) = VLitteralA (if x then y else z)
 
 
+
+--Question 20
+
+
+--Question 21
+
+data ValeurB = VLitteralB Litteral
+             | VFonctionB (ValeurB -> ErrValB)
+
+type MsgErreur = String
+type ErrValB   = Either MsgErreur ValeurB
+interpreteB :: Environnement ValeurB -> Expression -> Maybe ValeurB
+
+--Meme principe que pour la question concernant le Show de interpreteA
+instance Show ValeurB where
+    show (VFonctionB _)          = "λ"
+    show (VLitteralB (Entier n)) = show n
+    show (VLitteralB (Bool n))   = show n
+
+--Question 22
+
+interpreteB :: Environnement ValeurB -> Expression -> ErrValB
+
+interpreteB _ (Lit e) = Right (VLitteralA e)
+interpreteB env (Var e)   = case lookup e env of
+                                    Nothing -> Left 
+                                    Just x  -> Right x 
+interpreteB envi (Lam n e) =Right( VFonctionB (\x -> interpreteA ((n, x):envi) e))
+interpreteB envi (App e1 e2) = f v
+			where VFonctionA f = interpreteA envi e1
+			      v = interpreteA envi e2
+
+--Question 23
+addB :: ValeurB
+addB =Right (VFonctionB addB')
+
+addB':: ValeurB -> ValeurB
+addB' (VLitteralB (Entier i)) = Right(VFonctionB (addB'' i))
+addB' e = Left ("Erreur d'Interpretation 2eme entier attendu, (show e) trouvé")
+
+addB'' :: Integer -> ValeurB -> ValeurB
+addB'' a (VLitteralB (Entier j)) = Right(VLitteralB(Entier (a+j)))
+addB' e = Left ("Erreur d'Interpretation 1er entier attendu, (show e) trouvé ")
+
+--Question 24
+
+quotB :: ValeurB
+quotB =Right (VFonctionB addB')
+
+quotB':: ValeurB -> ValeurB
+quotB' (VLitteralB (Entier i)) = Right(VFonctionB (quotB'' i))
+quotB' e = Left ("Erreur d'Interpretation 2eme entier attendu, (show e) trouvé")
+
+quotB'' :: Integer -> ValeurB -> ValeurB
+quotB'' a (VLitteralB (Entier j)) = Right(VLitteralB(Entier (a/j)))
+quotB'' a (VLitteralB (Entier 0)) = Left ("Erreur division par 0")
+quotB' e = Left ("Erreur d'Interpretation 1er entier attendu, (show e) trouvé ")
+
+
+--Question 25
+
+data ValeurC = VLitteralC Litteral
+             | VFonctionC (ValeurC -> OutValC)
+
+type Trace   = String
+type OutValC = (Trace, ValeurC)
+
+show (VFonctionC _)          = "λ"
+show (VLitteralC (Entier n)) = show n
+show (VLitteralC (Bool n))   = show n
+
+--Question 26
+--interpreteC
+
+--Question 27
+--pingC :: ValeurC
