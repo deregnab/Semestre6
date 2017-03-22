@@ -18,8 +18,8 @@ data Litteral = Entier Integer
 
 --Question 1
 espacesP :: Parser ()
-espacesP =  (car ' ' >>= \_ -> espacesP) <|> pure ()
-
+--espacesP =  (car ' ' >>= \_ -> espacesP) <|> pure ()
+espacesP =many (car ' ') >> pure ()
 --Question 2
 isLetter :: Char -> Bool
 isLetter c = elem c ['a' .. 'z']
@@ -52,17 +52,19 @@ exprsP = (some (espacesP >> exprP) >>= \e -> pure (applique e))
 
 --Question 6
 lambdaP :: Parser Expression
-lambdaP = (car '\\' 	 	 	 >>= \_ 
-		   -> espacesP 	 	 >>= \_
-		   -> chaine "x ->"  	 >>= \_ 
-		   -> espacesP 	 	 >>= \_ 
-		   -> exprsP 		 >>= \e
-		   -> pure (Lam "x" e) )
+lambdaP = (car '\\' 	 	 	    >>= \_ 
+		   -> espacesP 	 	    >>= \_
+		   -> unCaractereQuelconque >>= \c
+		   -> espacesP		    >>= \_
+		   -> chaine "->"  	    >>= \_ 
+		   -> espacesP 	 	    >>= \_ 
+		   -> exprsP 		    >>= \e
+		   -> pure (Lam [c] e) )
 
 --Question 8 
 exprParentheseeP :: Parser Expression
 exprParentheseeP = (car '('    >>= \_ 
-					-> exprP   >>= \e 
+					-> exprsP   >>= \e 
 					-> car ')' >>= \_ 
 					-> pure e)
 
@@ -126,6 +128,51 @@ interpreteA envi (App e1 e2) = f v
 			      v = interpreteA envi e2
 
 --Question 16
-
 negA :: ValeurA
-negA = VFonctionA (*(-1))
+negA = VFonctionA negA'
+
+negA' :: ValeurA -> ValeurA
+negA' (VLitteralA (Entier i)) = VLitteralA (Entier (-1*i))
+
+--Question 17
+addA :: ValeurA
+addA = VFonctionA addA'
+	where addA' (VLitteralA (Entier i)) = VFonctionA (addA'' i)
+						where addA'' a (VLitteralA (Entier j)) = VLitteralA(Entier (a+j))
+
+--Ou
+--addA':: ValeurA -> ValeurA
+--addA' (VLitteralA (Entier i)) = VFonctionA (addA'' i)
+
+--addA'' :: Integer -> ValeurA -> ValeurA
+--addA'' a (VLitteralA (Entier j)) = VLitteralA(Entier (a+j))
+
+--Ou
+
+
+--Question 18
+
+releveBinOpEntierA :: (Integer -> Integer -> Integer) -> ValeurA
+releveBinOpEntierA op = VFonctionA (releveBinOpEntierA' op)
+
+releveBinOpEntierA' :: (Integer -> Integer -> Integer) -> ValeurA -> ValeurA
+releveBinOpEntierA' op (VLitteralA (Entier i)) = VFonctionA (releveBinOpEntierA'' op i)
+
+releveBinOpEntierA'' :: (Integer -> Integer -> Integer) -> Integer -> ValeurA -> ValeurA
+releveBinOpEntierA'' op a (VLitteralA (Entier j)) = VLitteralA(Entier ( (op a j) ))
+
+envA :: Environnement ValeurA
+envA = [ ("neg",   negA)
+       , ("add",   releveBinOpEntierA (+))
+       , ("soust", releveBinOpEntierA (-))
+       , ("mult",  releveBinOpEntierA (*))
+       , ("quot",  releveBinOpEntierA quot) ]
+
+--Question 19
+ifthenelseA :: ValeurA
+ifthenelseA = VFonctionA (inthenelseA' b i)
+
+inthenelseA' :: Bool -> ValeurA -> ValeurA -> ValeurA
+inthenelseA' True (VLitteralA (Entier i)) (VLitteralA (Entier j)) = VFonctionA (inthenelseA'' b 
+
+
