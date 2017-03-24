@@ -1,32 +1,24 @@
---Benjamin Deregnaucourt Samuel Moulard
-
 import Parser
 import Data.Maybe
+import Data.Either
 type Nom = String
 
 data Expression = Lam Nom Expression
-		| App Expression Expression
-		| Var Nom
-		| Lit Litteral
-		deriving (Show, Eq)
+        | App Expression Expression
+        | Var Nom
+        | Lit Litteral
+        deriving (Show, Eq)
 
 data Litteral = Entier Integer
-		| Bool Bool
-		deriving (Show, Eq)
+        | Bool Bool
+        deriving (Show, Eq)
 
 --Analyse Proprement Dite
 
 --Question 1
 espacesP :: Parser ()
-<<<<<<< HEAD
-espacesP =  (car ' ' >>= \_ -> espacesP) <|> pure ()
-
-=======
 --espacesP =  (car ' ' >>= \_ -> espacesP) <|> pure ()
-espacesP =many (car ' ') >> pure ()
->>>>>>> 022ecc5761439610b3f89e1f1dd072ebe7550fd5
---Question 2
-isLetter :: Char -> Bool
+espacesP =many (car ' ') >> pure () --Question 2 isLetter :: Char -> Bool
 isLetter c = elem c ['a' .. 'z']
 
 --"some" doit réussir au moins une fois, puis continue jusqu'à un échec
@@ -47,92 +39,79 @@ applique (x1:x2:xs) = App ( App x1 x2) (applique xs)
 --Question 5 (7, 8 et 10)
 exprP :: Parser Expression
 exprP = varP 
-	<|> lambdaP
-	<|> exprParentheseeP
-	<|> nombreP
-	<|> booleenP
+    <|> lambdaP
+    <|> exprParentheseeP
+    <|> nombreP
+    <|> booleenP
 
 exprsP :: Parser Expression
 exprsP = (some (espacesP >> exprP) >>= \e -> pure (applique e))
 
 --Question 6
 lambdaP :: Parser Expression
-<<<<<<< HEAD
-lambdaP = (car '\\' 	 	 	 >>= \_ 
-		   -> espacesP 	 	 >>= \_
-		   -> chaine "x ->"  	 >>= \_ 
-		   -> espacesP 	 	 >>= \_ 
-		   -> exprsP 		 >>= \e
-		   -> pure (Lam "x" e) )
-=======
-lambdaP = (car '\\' 	 	 	    >>= \_ 
-		   -> espacesP 	 	    >>= \_
-		   -> unCaractereQuelconque >>= \c
-		   -> espacesP		    >>= \_
-		   -> chaine "->"  	    >>= \_ 
-		   -> espacesP 	 	    >>= \_ 
-		   -> exprsP 		    >>= \e
-		   -> pure (Lam [c] e) )
->>>>>>> 022ecc5761439610b3f89e1f1dd072ebe7550fd5
+lambdaP = (car '\\'                 >>= \_ 
+           -> espacesP              >>= \_
+           -> unCaractereQuelconque >>= \c
+           -> espacesP              >>= \_
+           -> chaine "->"           >>= \_ 
+           -> espacesP              >>= \_ 
+           -> exprsP                >>= \e
+           -> pure (Lam [c] e) )
 
 --Question 8 
 exprParentheseeP :: Parser Expression
 exprParentheseeP = (car '('    >>= \_ 
-<<<<<<< HEAD
-					-> exprP   >>= \e 
-=======
-					-> exprsP   >>= \e 
->>>>>>> 022ecc5761439610b3f89e1f1dd072ebe7550fd5
-					-> car ')' >>= \_ 
-					-> pure e)
+                    -> exprsP   >>= \e 
+                    -> car ')' >>= \_ 
+                    -> pure e)
 
 --Question 9
 isNumber :: Char -> Bool
 isNumber a = elem a ['0' .. '9'] 
 
 nombreP :: Parser Expression
-nombreP = (some (carQuand isNumber) 			>>= \i
-		  -> espacesP				>>= \_
-		  -> pure (Lit (Entier (read i))) )
+nombreP = (some (carQuand isNumber)             >>= \i
+          -> espacesP                >>= \_
+          -> pure (Lit (Entier (read i))) )
 
 --Question 10
 booleenP :: Parser Expression
 booleenP = (chaine "True" <|> chaine "False" >>= \s
-			-> espacesP	     >>= \_
-			-> pure (Lit (Bool (s == "True"))) )
+            -> espacesP         >>= \_
+            -> pure (Lit (Bool (s == "True"))) )
 
 --Question 11
 expressionP :: Parser Expression
 expressionP = (espacesP  >>= \_
-			   -> exprsP >>= \e 
-			   -> pure e)
+               -> exprsP >>= \e 
+               -> pure e)
 
 --Question 12
 isFinished :: Resultat a -> Bool
 isFinished (Just (_, "")) = True
-isFinished _ 			  = False
+isFinished _               = False
 
 ras :: String -> Expression
 ras s = case runParser expressionP s of
-          Nothing                           		    -> error "Erreur d’analyse syntaxique"
+          Nothing                                       -> error "Erreur d’analyse syntaxique"
           exp@(Just (e,_)) | (isFinished exp) == False      -> error "Analyse non terminée"
-                           | otherwise        		    -> e
+                           | otherwise                    -> e
 
 --Interpretation
 
 --Preliminaires
 data ValeurA = VLitteralA Litteral
-		| VFonctionA (ValeurA -> ValeurA)
-		--deriving Show
+        | VFonctionA (ValeurA -> ValeurA)
+        --deriving Show
 
 --Question 13
 --Il ne sait pas afficher (ValeurA -> ValeurA)
 
 --Question 14
 instance Show ValeurA where
-	show (VFonctionA _) = "λ"
-	show (VLitteralA (Entier i))= show i 
-	show (VLitteralA (Bool b))= show b
+    show (VFonctionA _) = "λ"
+    show (VLitteralA (Entier i))= show i 
+    show (VLitteralA (Bool b))= show b
 
 type Environnement a = [(Nom, a)]
 
@@ -142,28 +121,10 @@ interpreteA _ (Lit e) = VLitteralA e
 interpreteA envi (Var e) = fromJust (lookup e envi) 
 interpreteA envi (Lam n e) = VFonctionA (\x -> interpreteA ((n, x):envi) e)
 interpreteA envi (App e1 e2) = f v
-			where VFonctionA f = interpreteA envi e1
-			      v = interpreteA envi e2
+            where VFonctionA f = interpreteA envi e1
+                  v = interpreteA envi e2
 
 --Question 16
-<<<<<<< HEAD
-
-negA :: ValeurA
-negA = VFonctionA negA'
-
-negA':: ValeurA -> ValeurA
-negA' (VLitteralA (Entier i)) = VLitteralA (Entier (-1*i))
-
---Question 17
-
-addA :: ValeurA
-addA = VFonctionA addA'
-addA' :: ValeurA -> ValeurA -> ValeurA
-addA' (VLitteralA (Entier i)) (VLitteralA (Entier j)) = VLitteralA (Entier (i+j))
-
---Question 18
- 
-=======
 negA :: ValeurA
 negA = VFonctionA negA'
 
@@ -203,18 +164,25 @@ envA = [ ("neg",   negA)
 
 --Question 19
 ifthenelseA :: ValeurA
-ifthenelseA = VFonctionA (inthenelseA' b i)
+ifthenelseA = VFonctionA (ifthenelseA')
 
-ifthenelseA :: ValeurA
-ifthenelseA = VFonctionA f
-            where f (VLitteralA (Bool x)) = VFonctionA g
-                    where g (VLitteralA y) = VFonctionA h
-                            where h (VLitteralA z) = VLitteralA (if x then y else z)
+ifthenelseA' :: ValeurA -> ValeurA
+ifthenelseA' (VLitteralA (Bool b)) = VFonctionA ( ifthenelse'' b )
+
+ifthenelse'' :: Bool -> ValeurA -> ValeurA
+ifthenelse'' b (VLitteralA (Entier i)) = VFonctionA (ifthenelse'''   b i )
+
+ifthenelse''' :: Bool -> Integer -> ValeurA -> ValeurA
+ifthenelse'''  b i lit@(VLitteralA(Entier m)) = if b then VLitteralA (Entier i) else lit
 
 
 
 --Question 20
-
+main :: IO ()
+main = do putStr "minilang>"
+          s <- getLine
+          print (interpreteA envA (ras s))
+          main
 
 --Question 21
 
@@ -223,7 +191,7 @@ data ValeurB = VLitteralB Litteral
 
 type MsgErreur = String
 type ErrValB   = Either MsgErreur ValeurB
-interpreteB :: Environnement ValeurB -> Expression -> Maybe ValeurB
+
 
 --Meme principe que pour la question concernant le Show de interpreteA
 instance Show ValeurB where
@@ -235,40 +203,35 @@ instance Show ValeurB where
 
 interpreteB :: Environnement ValeurB -> Expression -> ErrValB
 
-interpreteB _ (Lit e) = Right (VLitteralA e)
-interpreteB env (Var e)   = case lookup e env of
-                                    Nothing -> Left 
-                                    Just x  -> Right x 
-interpreteB envi (Lam n e) =Right( VFonctionB (\x -> interpreteA ((n, x):envi) e))
-interpreteB envi (App e1 e2) = f v
-			where VFonctionA f = interpreteA envi e1
-			      v = interpreteA envi e2
+interpreteB _ (Lit e) = Right (VLitteralB e)
+interpreteB envi (Var e)   = Right (fromJust (lookup e envi)) 
+interpreteB envi (Lam n e) = Right( VFonctionB (\x -> interpreteB ((n, x):envi) e))
 
 --Question 23
-addB :: ValeurB
-addB =Right (VFonctionB addB')
+--addB :: ValeurB
+--addB =Right (VFonctionB addB')
 
-addB':: ValeurB -> ValeurB
-addB' (VLitteralB (Entier i)) = Right(VFonctionB (addB'' i))
-addB' e = Left ("Erreur d'Interpretation 2eme entier attendu, (show e) trouvé")
+--addB':: ValeurB -> ValeurB
+--addB' (VLitteralB (Entier i)) = Right (VFonctionB (addB'' i))
+--addB' e = Left ("Erreur d'Interpretation 2eme entier attendu, (show e) trouvé")
 
-addB'' :: Integer -> ValeurB -> ValeurB
-addB'' a (VLitteralB (Entier j)) = Right(VLitteralB(Entier (a+j)))
-addB' e = Left ("Erreur d'Interpretation 1er entier attendu, (show e) trouvé ")
+--addB'' :: Integer -> ValeurB -> ValeurB
+--addB'' a (VLitteralB (Entier j)) = Right(VLitteralB(Entier (a+j)))
+--addB'' e _ = Left ("Erreur d'Interpretation 1er entier attendu, (show e) trouvé ")
 
 --Question 24
 
-quotB :: ValeurB
-quotB =Right (VFonctionB addB')
+--quotB :: ValeurB
+--quotB =Right (VFonctionB addB')
 
-quotB':: ValeurB -> ValeurB
-quotB' (VLitteralB (Entier i)) = Right(VFonctionB (quotB'' i))
-quotB' e = Left ("Erreur d'Interpretation 2eme entier attendu, (show e) trouvé")
+--quotB':: ValeurB -> ValeurB
+--quotB' (VLitteralB (Entier i)) = Right(VFonctionB (quotB'' i))
+--quotB' e = Left ("Erreur d'Interpretation 2eme entier attendu, (show e) trouvé")
 
-quotB'' :: Integer -> ValeurB -> ValeurB
-quotB'' a (VLitteralB (Entier j)) = Right(VLitteralB(Entier (a/j)))
-quotB'' a (VLitteralB (Entier 0)) = Left ("Erreur division par 0")
-quotB' e = Left ("Erreur d'Interpretation 1er entier attendu, (show e) trouvé ")
+--quotB'' :: Integer -> ValeurB -> ValeurB
+--quotB'' a (VLitteralB (Entier j)) = Right(VLitteralB(Entier (a/j)))
+--quotB'' a (VLitteralB (Entier 0)) = Left ("Erreur division par 0")
+--quotB'' e _= Left ("Erreur d'Interpretation 1er entier attendu, (show e) trouvé ")
 
 
 --Question 25
@@ -279,13 +242,16 @@ data ValeurC = VLitteralC Litteral
 type Trace   = String
 type OutValC = (Trace, ValeurC)
 
-show (VFonctionC _)          = "λ"
-show (VLitteralC (Entier n)) = show n
-show (VLitteralC (Bool n))   = show n
+
+instance Show ValeurC where
+    show (VFonctionC _)          = "λ"
+    show (VLitteralC (Entier n)) = show n
+    show (VLitteralC (Bool n))   = show n
 
 --Question 26
---interpreteC
-
+interpreteC :: Environnement ValeurC -> Expression -> OutValC
+interpreteC _   (Lit x)   = ("", VLitteralC x)
+interpreteC env (Var x)   = ("", fromJust (lookup x env))
+interpreteC env (Lam x y) = ("", VFonctionC (\v -> interpreteC ((x, v):env) y))
 --Question 27
 --pingC :: ValeurC
->>>>>>> 022ecc5761439610b3f89e1f1dd072ebe7550fd5
