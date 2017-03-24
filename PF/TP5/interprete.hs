@@ -1,15 +1,7 @@
-<<<<<<< HEAD
 --Benjamin Deregnaucourt Samuel Moulard
 
 import Parser
 import Data.Maybe
-=======
---Auteurs : Thomas Houset | Yann Garbé
-
-import ./PF/TP5/Parser
-import Data.Maybe
-import Data.Either
->>>>>>> 022ecc5761439610b3f89e1f1dd072ebe7550fd5
 type Nom = String
 
 data Expression = Lam Nom Expression
